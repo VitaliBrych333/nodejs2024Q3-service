@@ -72,7 +72,7 @@ export class AlbumService {
 
   private validateAlbumId(id: string) {
     if (!validate(id)) {
-      throw new BadRequestException('Id is not uuid');
+      throw new BadRequestException('Id is invalid (not uuid)');
     }
 
     const album = db.albumDb.find((item) => item.id === id);
