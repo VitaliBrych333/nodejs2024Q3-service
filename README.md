@@ -1,21 +1,20 @@
 # Home Library Service
 
-## Prerequisites
+# To start:
 
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- clone this repository wiht branch `b develop_part_1`
+- open app `cd nodejs2024Q3-service`
+- run `npm install` to install
+- `PORT=4000` set in .env file
+- npm start
 
-## Downloading
+# To run test:
+`npm run start`
+`npm run test`
 
-```
-git clone {repository URL}
-```
+# To see swagger doc:
 
-## Installing NPM modules
-
-```
-npm install
-```
+`http://localhost:{'your port'}/doc/`
 
 ## Running application
 
