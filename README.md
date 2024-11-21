@@ -2,11 +2,11 @@
 
 # To start:
 
-- clone this repository wiht branch `b develop_part_2`
+- clone this repository wiht branch `b develop_part_3`
 - open app `cd nodejs2024Q3-service`
-- run `npm install` to install
+- run `npm install --legacy-peer-deps` to install
 - `PORT=4000` set in .env file
-- npm run docker:build:up
+- `npm run docker:build:up`
   (
     there may be problems with an already allocated port on Windows - then you need to kill the process on it
         - open CMD as Admin
@@ -16,11 +16,16 @@
     also there may also be problems with an already running docker container - then stop the container
         - docker container ls
         - docker stop {CONTAINER ID}
+    also there may also be problems with running - try doing it first:
+        - docker pull vitalibrych333/nodejs2024q3-service-app
   )
 
+- Logs wiil be in the files of the container named 'app', in the app/dist/log
 
 # To run test:
-in other terminal parallel `npm run test`
+in other terminal parallel
+  `npm run test:auth`
+  `npm run test:refresh`
 
 # To see swagger doc:
 

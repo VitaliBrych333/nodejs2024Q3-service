@@ -1,3 +1,5 @@
+import * as bcrypt from 'bcrypt';
+import { omit } from 'lodash';
 import {
   BadRequestException,
   ForbiddenException,
@@ -7,7 +9,8 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-user.dto';
 import { DatabaseService } from '../database/database.service';
-import { omit } from 'lodash';
+
+const saltRounds = +process.env.CRYPT_SALT;
 
 @Injectable()
 export class UserService {
@@ -22,8 +25,11 @@ export class UserService {
     if (!(userDto.login && userDto.password)) {
       throw new BadRequestException('Invalid data');
     }
+    userDto.password = await bcrypt.hash(userDto.password, saltRounds);
 
-    const user = await this.databaseService.user.create({ data: userDto });
+    const user = await this.databaseService.user.create({
+      data: userDto,
+    });
 
     const newUser = omit(user, ['password']);
 
@@ -43,7 +49,7 @@ export class UserService {
       throw new NotFoundException('This user does not exist');
     }
 
-    return user;
+    return omit(user, ['password']);
   }
 
   async updateUserById(id: string, updateUserDto: UpdatePasswordDto) {
@@ -63,24 +69,25 @@ export class UserService {
       throw new NotFoundException('This user does not exist');
     }
 
-    if (updateUserDto.oldPassword !== user.password) {
+    const checkPassword = await bcrypt.compare(
+      updateUserDto.oldPassword,
+      user.password,
+    );
+
+    if (!checkPassword) {
       throw new ForbiddenException('Old password is wrong');
     }
 
-    const version = user.version + 1;
-    const updatedUser = await this.databaseService.user.update({
-      where: { id },
+    const newUser = await this.databaseService.user.update({
+      where: { id: id },
       data: {
-        password: updateUserDto.newPassword,
-        version: version,
-        updatedAt: new Date(),
+        password: await bcrypt.hash(updateUserDto.newPassword, saltRounds),
+        version: { increment: 1 },
       },
     });
 
-    const newUser = omit(updatedUser, ['password']);
-
     return {
-      ...newUser,
+      ...omit(newUser, ['password']),
       createdAt: new Date(newUser.createdAt).getTime(),
       updatedAt: new Date(newUser.updatedAt).getTime(),
     };
@@ -98,5 +105,17 @@ export class UserService {
     await this.databaseService.user.delete({
       where: { id },
     });
+  }
+
+  async getByLogin(login: string) {
+    const user = await this.databaseService.user.findFirst({
+      where: { login: login },
+    });
+
+    if (!user) {
+      throw new NotFoundException('This user does not exist');
+    }
+
+    return user;
   }
 }
