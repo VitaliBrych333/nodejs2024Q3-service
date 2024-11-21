@@ -14,6 +14,6 @@ WORKDIR /app
 
 COPY --from=build /app /app
 
-EXPOSE 4000
+EXPOSE ${PORT}
 
 CMD npx prisma migrate dev && npm run start:dev
